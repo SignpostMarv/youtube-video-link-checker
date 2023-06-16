@@ -37,6 +37,12 @@ for (const video of videos) {
 	if (cards.length || domains.filter((maybe) => {
 		return video.description.includes(maybe);
 	}).length) {
-		console.log(video.id, cards);
+		const url = `https://youtu.be/${video.id}`;
+
+		if (cards.length) {
+			console.log(url, cards);
+		} else {
+			console.log(url);
+		}
 	}
 }
