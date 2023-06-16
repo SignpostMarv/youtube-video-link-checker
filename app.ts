@@ -55,4 +55,6 @@ for (const video of videos) {
 	}
 }
 
-console.log(...log_this);
+for (const log_that of log_this) {
+	console.log(...log_that);
+}
