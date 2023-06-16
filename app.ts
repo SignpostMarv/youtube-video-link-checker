@@ -37,6 +37,6 @@ for (const video of videos) {
 	if (cards.length || domains.filter((maybe) => {
 		return video.description.includes(maybe);
 	}).length) {
-		console.log(video, cards);
+		console.log(video.id, cards);
 	}
 }
