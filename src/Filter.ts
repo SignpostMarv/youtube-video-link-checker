@@ -7,6 +7,20 @@ import {youtube_v3} from "googleapis";
 export async function Filter(videos:Video[], domains:string[]): Promise<Video[]> {
 	const matches:Video[] = [];
 
+	console.log('precaching');
+
+	let page = 0;
+	const page_size = 20;
+	const page_count = Math.ceil(videos.length / page_size);
+
+	for (let i=0; i < videos.length; i += page_size) {
+		console.log(`precaching page ${++page} of ${page_count} (${i} to ${i + page_size})`);
+
+		await Promise.all(videos.slice(i, i + page_size).map((video_id) => {
+			return Video.fetch_page(video_id);
+		}));
+	}
+
 	for (const video of videos) {
 		const cards = (await Video.info_cards(video)).filter((maybe) => {
 			return domains.filter((domain) => {

@@ -16,7 +16,9 @@ const [,, domains_csv] = process.argv;
 
 const video_ids = (
 	await readFile(`${__dirname}/video-ids.txt`) + ''
-).split('\n').map(e => e.trim());
+).split('\n').map(e => e.trim()).filter((maybe) => {
+	return /^[A-Za-z0-9\-_]{11}$/.test(maybe);
+});
 const domains = domains_csv.split(',').map(e => e.trim());
 
 console.log(video_ids.length);

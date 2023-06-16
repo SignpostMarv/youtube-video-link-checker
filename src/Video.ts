@@ -184,7 +184,7 @@ export class Video
 		this.description = description;
     }
 
-    private static async fetch_page(video:Video) : Promise<string>
+    public static async fetch_page(video:Video) : Promise<string>
     {
 		const file_cache = `${__dirname}/../cache/youtube-video-pages/${video.id}.html`;
 
