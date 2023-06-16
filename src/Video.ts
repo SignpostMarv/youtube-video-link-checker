@@ -259,6 +259,7 @@ export class Video
 			const api_results = await new Promise(async (yup, nope) => {
 				try {
 					const items:Schema$SearchResult[] = [];
+					const video_ids:string[] = [];
 
 					let params:Params$Resource$Search$List = {
 						channelId: channel_id,
@@ -278,7 +279,13 @@ export class Video
 						items.push(...results.data.items);
 					}
 
-					yup(items.map(e => e.id.videoId));
+					for (const item of items) {
+						if ( ! video_ids.includes(item.id.videoId)) {
+							video_ids.push(item.id.videoId);
+						}
+					}
+
+					yup(video_ids);
 				} catch (err) {
 					nope(err);
 				}
@@ -290,6 +297,12 @@ export class Video
 		}
 
 		const video_ids = (JSON.parse(await readFile(file_cache) + '') as string[]);
+
+		return this.get_videos_by_id(api, video_ids);
+	}
+
+	public static async get_videos_by_id(api: youtube_v3.Youtube, video_ids:string[]) : Promise<Video[]>
+	{
 
 		const videos:Schema$Video[] = [];
 

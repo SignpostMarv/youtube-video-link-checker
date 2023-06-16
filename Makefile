@@ -7,7 +7,7 @@ npm-install:
 		node:20-alpine \
 		npm install
 
-run:
+by-channel:
 	@docker run --rm -it \
 		-u $(shell id -u):$(shell id -g) \
 		-w /app/ \
@@ -15,4 +15,14 @@ run:
 		-v ${HOME}/.npm/:/.npm/ \
 		node:20-alpine \
 		node --loader ts-node/esm \
-		./app.ts ${CHANNEL_ID} ${DOMAINS}
+		./by-channel.ts ${CHANNEL_ID} ${DOMAINS}
+
+by-txt:
+	@docker run --rm -it \
+		-u $(shell id -u):$(shell id -g) \
+		-w /app/ \
+		-v $(shell pwd):/app/ \
+		-v ${HOME}/.npm/:/.npm/ \
+		node:20-alpine \
+		node --loader ts-node/esm \
+		./by-txt.ts ${DOMAINS}
