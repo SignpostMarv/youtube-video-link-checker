@@ -33,7 +33,7 @@ import {
 	Text,
 } from 'domhandler';
 
-declare type Info_Card = {
+export type Info_Card = {
 	cardRenderer: {
 		content?: {
 			videoInfoCardContentRenderer?: {

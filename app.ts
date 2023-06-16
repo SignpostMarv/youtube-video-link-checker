@@ -1,5 +1,6 @@
 import {
 	Video,
+	Info_Card,
 } from './src/Video.js';
 import {
 	youtube_v3,
@@ -27,6 +28,9 @@ const youtube = new youtube_v3.Youtube(
 
 const videos = await Video.get_videos_for_channel(youtube, channel_id);
 
+const log_this:([string]|[string, Info_Card[]])[] = [];
+const urls:string[] = [];
+
 for (const video of videos) {
 	const cards = (await Video.info_cards(video)).filter((maybe) => {
 		return domains.filter((domain) => {
@@ -39,10 +43,16 @@ for (const video of videos) {
 	}).length) {
 		const url = `https://youtu.be/${video.id}`;
 
+		if (urls.includes(url)) {
+			continue;
+		}
+
 		if (cards.length) {
-			console.log(url, cards);
+			log_this.push([url, cards]);
 		} else {
-			console.log(url);
+			log_this.push([url]);
 		}
 	}
 }
+
+console.log(...log_this);
