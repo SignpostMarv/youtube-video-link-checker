@@ -29,12 +29,9 @@ const videos = await Video.get_videos_for_channel(youtube, channel_id);
 
 for (const video of videos) {
 	const cards = (await Video.info_cards(video)).filter((maybe) => {
-		return (
-			'content' in maybe.cardRenderer
-			&& maybe.cardRenderer.content
-			&& 'simpleCardContentRenderer' in maybe.cardRenderer.content
-			&& domains.includes(maybe.cardRenderer.content.simpleCardContentRenderer?.command.urlEndpoint.url || '')
-		);
+		return domains.filter((domain) => {
+			return (maybe?.cardRenderer?.content?.simpleCardContentRenderer?.command.urlEndpoint.url || '').includes(domain);
+		}).length;
 	});
 
 	if (cards.length || domains.filter((maybe) => {
