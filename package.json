@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@types/node": "^20.3.1",
+    "domhandler": "^5.0.3",
+    "domutils": "^3.1.0",
+    "googleapis": "^118.0.0",
+    "htmlparser2": "^9.0.0",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.5.3",
+    "typescript": "^5.1.3"
+  }
+}
