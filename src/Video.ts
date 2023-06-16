@@ -17,11 +17,11 @@ import {
 } from 'googleapis';
 import {
 // @ts-ignore
-	Params$Resource$Search$List,
+	Params$Resource$Search$List, Params$Resource$Videos$List,
 // @ts-ignore
 	Schema$SearchListResponse,
 // @ts-ignore
-	Schema$SearchResult,
+	Schema$SearchResult, Schema$Video, Schema$VideoListResponse,
 } from 'googleapis/build/src/apis/youtube/v3';
 import {
 	parseDocument,
@@ -103,6 +103,57 @@ async function search_channel(
 			nope(err);
 		}
 	}) ;
+}
+
+async function list_videos(
+	api: youtube_v3.Youtube,
+	params:Params$Resource$Videos$List
+): Promise<Schema$VideoListResponse> {
+	return new Promise((yup, nope) => {
+		try {
+			api.videos.list(params, (err:Error|null, response:Schema$VideoListResponse) => {
+				if (err) {
+					nope(err);
+
+					return;
+				}
+
+				yup(response);
+			});
+		} catch (err) {
+			nope(err);
+		}
+	});
+}
+
+async function list_videos_auto_handle_pages(
+	api: youtube_v3.Youtube,
+	video_ids: string[]
+): Promise<Schema$Video[]> {
+	let videos:Schema$Video[] = [];
+	let page = 0;
+
+	for (let i = 0; i < video_ids.length; i += 50) {
+		console.log(`checking page ${++page}`);
+		const chunk = video_ids.slice(i, i + 50);
+
+		const params:Params$Resource$Videos$List = {
+			part: ['snippet'],
+			id: chunk.join(','),
+		};
+
+		let results = await list_videos(api, params);
+
+		videos.push(...results.data.items);
+
+		while (results.data.nextPageToken) {
+			params.pageToken = results.data.pageToken;
+			results = await list_videos(api, params);
+			videos.push(...results.data.items);
+		}
+	}
+
+	return videos;
 }
 
 async function exists(filepath:string): Promise<boolean> {
@@ -227,14 +278,6 @@ export class Video
 						items.push(...results.data.items);
 					}
 
-					for (const video of items) {
-						const video_file_cache = `${
-							__dirname
-						}/../cache/youtube-api/videos/${video.id.videoId}.json`;
-
-						await writeFile(video_file_cache, JSON.stringify(video, null, '\t') + '\n');
-					}
-
 					yup(items.map(e => e.id.videoId));
 				} catch (err) {
 					nope(err);
@@ -248,19 +291,41 @@ export class Video
 
 		const video_ids = (JSON.parse(await readFile(file_cache) + '') as string[]);
 
-		const results:Schema$SearchResult[] = [];
+		console.log(video_ids);
+
+		const videos:Schema$Video[] = [];
+
+		const video_ids_to_check:string[] = [];
 
 		for (const video_id of video_ids) {
 			const video_file_cache = `${
 				__dirname
 			}/../cache/youtube-api/videos/${video_id}.json`;
 
-			results.push(JSON.parse(await readFile(video_file_cache) + '') as Schema$SearchResult);
+			if ( ! await exists(video_file_cache)) {
+				video_ids_to_check.push(video_id);
+			}
 		}
 
-		return results.map(
+		for (const video of await list_videos_auto_handle_pages(api, video_ids_to_check)) {
+			const video_file_cache = `${
+				__dirname
+			}/../cache/youtube-api/videos/${video.id}.json`;
+
+			await writeFile(video_file_cache, JSON.stringify(video, null, '\t') + '\n');
+		}
+
+		for (const video_id of video_ids) {
+			const video_file_cache = `${
+				__dirname
+			}/../cache/youtube-api/videos/${video_id}.json`;
+
+			videos.push(JSON.parse(await readFile(video_file_cache) + '') as Schema$Video);
+		}
+
+		return videos.map(
 			(item) => {
-				return new Video(item.id.videoId, item.snippet.description);
+				return new Video(item.id, item.snippet.description);
 			}
 		);
 	}
