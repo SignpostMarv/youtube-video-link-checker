@@ -291,8 +291,6 @@ export class Video
 
 		const video_ids = (JSON.parse(await readFile(file_cache) + '') as string[]);
 
-		console.log(video_ids);
-
 		const videos:Schema$Video[] = [];
 
 		const video_ids_to_check:string[] = [];
