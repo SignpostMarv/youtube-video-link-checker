@@ -58,3 +58,7 @@ for (const video of videos) {
 for (const log_that of log_this) {
 	console.log(...log_that);
 }
+
+if (!log_this.length) {
+	console.log('all done 👍');
+}
